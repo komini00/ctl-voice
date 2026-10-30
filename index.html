@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>중문과정 번역 시스템 사용 후기</title>
+<style>
+  :root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1f;--sub:#6b6b70;--line:#e3e1dc;--accent:#b5462f;--ok:#2f7a4a}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.6}
+  .wrap{max-width:640px;margin:0 auto;padding:24px 16px 64px}
+  h1{font-size:22px;margin:8px 0 4px} .lead{color:var(--sub);font-size:15px;margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin-bottom:14px}
+  label.q{display:block;font-weight:700;margin-bottom:8px} .opt{color:var(--sub);font-weight:400;font-size:13px}
+  input[type=text],textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px}
+  textarea{min-height:80px}
+  .scale{display:flex;gap:6px} .scale label,.chips label{flex:1;text-align:center;border:1px solid var(--line);border-radius:8px;padding:8px 0;cursor:pointer}
+  .chips{display:flex;gap:6px;flex-wrap:wrap} .chips label{flex:1 1 30%;padding:8px 4px}
+  .scale input,.chips input{display:none} .scale input:checked+span,.chips input:checked+span{font-weight:700;color:var(--accent)}
+  .scale label:has(input:checked),.chips label:has(input:checked){border-color:var(--accent);background:#fbefec}
+  .ends{display:flex;justify-content:space-between;color:var(--sub);font-size:12px;margin-top:4px}
+  .guide{background:#faf7f0;border-radius:8px;padding:10px 12px;font-size:14px;margin:0 0 12px}
+  .guide li{margin:2px 0}
+  .rec{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  button{font:inherit;border:0;border-radius:999px;padding:12px 20px;cursor:pointer}
+  #recBtn{background:var(--accent);color:#fff;font-weight:700}
+  #recBtn.on{background:#1d1d1f}
+  #time{font-variant-numeric:tabular-nums;color:var(--sub)}
+  audio{width:100%;margin-top:10px}
+  .alt{font-size:13px;color:var(--sub);margin-top:10px}
+  #send{width:100%;background:var(--ink);color:#fff;font-weight:700;font-size:17px;padding:14px}
+  #send:disabled{opacity:.5}
+  #msg{text-align:center;margin-top:12px;font-weight:700}
+  .done{text-align:center;padding:40px 16px} .done h2{color:var(--ok)}
+</style></head><body><div class="wrap" id="app">
+<h1>중문과정 번역 시스템 사용 후기</h1>
+<p class="lead">교수학습개발센터입니다. 수업에서 번역 시스템을 써 보신 경험을 들려주십시오. 3분이면 끝납니다.<br>말로 하시는 게 편하시면 아래 🎙️ 녹음 버튼을 눌러 그냥 말씀해 주시면 됩니다.</p>
+
+<div class="card"><label class="q">1. 소속 학과</label><input type="text" id="dept" placeholder="예: 경영학과"></div>
+<div class="card"><label class="q">2. 번역 시스템을 쓴 수업 <span class="opt">(선택)</span></label><input type="text" id="course" placeholder="예: 국제마케팅"></div>
+<div class="card"><label class="q">3. 몇 번 정도 쓰셨습니까?</label>
+  <div class="chips">
+    <label><input type="radio" name="count" value="1~2회"><span>1~2회</span></label>
+    <label><input type="radio" name="count" value="3~5회"><span>3~5회</span></label>
+    <label><input type="radio" name="count" value="거의 매주"><span>거의 매주</span></label>
+  </div></div>
+<div class="card"><label class="q">4. 전반적으로 얼마나 만족하십니까?</label>
+  <div class="scale" id="sat"></div><div class="ends"><span>매우 불만족</span><span>매우 만족</span></div></div>
+<div class="card"><label class="q">5. 학생들의 수업 이해에 도움이 되었습니까?</label>
+  <div class="scale" id="help"></div><div class="ends"><span>전혀 아니다</span><span>매우 그렇다</span></div></div>
+<div class="card"><label class="q">6. 다음 학기에도 쓰시겠습니까?</label>
+  <div class="chips">
+    <label><input type="radio" name="cont" value="쓰겠다"><span>쓰겠다</span></label>
+    <label><input type="radio" name="cont" value="고쳐지면 쓰겠다"><span>고쳐지면 쓰겠다</span></label>
+    <label><input type="radio" name="cont" value="안 쓰겠다"><span>안 쓰겠다</span></label>
+  </div></div>
+
+<div class="card"><label class="q">7. 🎙️ 음성 후기 <span class="opt">(1~3분, 편하게 말씀해 주십시오)</span></label>
+  <ul class="guide">
+    <li>좋았던 점</li><li>불편했거나 틀리게 번역된 경험</li><li>센터나 학교에 바라는 점</li>
+  </ul>
+  <div class="rec" id="liveRec"><button type="button" id="recBtn">● 녹음 시작</button><span id="time">0:00</span></div>
+  <div class="rec" id="fileRec" hidden><button type="button" id="pickBtn">🎙️ 녹음하기 / 녹음 파일 올리기</button></div>
+  <input type="file" id="file" accept="audio/*" capture hidden>
+  <audio id="player" controls hidden></audio>
+  <div class="alt" id="alt" hidden>휴대폰에서는 버튼을 누르면 녹음 앱이 열립니다. 녹음을 마치면 이 화면으로 돌아와 [보내기]를 눌러 주십시오.<br>아이폰은 「음성 메모」로 녹음한 뒤 파일을 고르시면 됩니다.</div>
+</div>
+<div class="card"><label class="q">8. 글로 남기실 말씀 <span class="opt">(선택)</span></label><textarea id="text"></textarea></div>
+
+<button id="send">보내기</button><div id="msg"></div>
+</div>
+<script>
+var ENDPOINT="https://script.google.com/macros/s/AKfycbz_rB41LwcCmmXOJkRIJQIm9TaD9kcEmO5CMwirC9QRgmLG-hJz7y91fOm4XgW2J8Ps/exec";
+function scale(id){var el=document.getElementById(id);for(var i=1;i<=5;i++){el.insertAdjacentHTML('beforeend','<label><input type="radio" name="'+id+'" value="'+i+'"><span>'+i+'</span></label>')}}
+scale('sat');scale('help');
+var rec=null,chunks=[],blob=null,mime='',t0=0,timer=null,MAX=300;
+var btn=document.getElementById('recBtn'),tm=document.getElementById('time'),pl=document.getElementById('player');
+function pick(){var c=['audio/webm;codecs=opus','audio/mp4','audio/ogg;codecs=opus','audio/webm'];for(var i=0;i<c.length;i++){if(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(c[i]))return c[i]}return ''}
+function fmt(s){return Math.floor(s/60)+':'+('0'+Math.floor(s%60)).slice(-2)}
+function noMic(){document.getElementById('liveRec').hidden=true;document.getElementById('fileRec').hidden=false;document.getElementById('alt').hidden=false;}
+var fp=document.permissionsPolicy||document.featurePolicy;
+if(!navigator.mediaDevices||!window.MediaRecorder||(fp&&fp.allowsFeature&&!fp.allowsFeature('microphone'))){noMic()}
+document.getElementById('pickBtn').onclick=function(){document.getElementById('file').click()};
+btn.onclick=function(){
+  if(rec&&rec.state==='recording'){rec.stop();return}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+    mime=pick();chunks=[];rec=mime?new MediaRecorder(st,{mimeType:mime}):new MediaRecorder(st);
+    rec.ondataavailable=function(e){if(e.data.size)chunks.push(e.data)};
+    rec.onstop=function(){st.getTracks().forEach(function(t){t.stop()});clearInterval(timer);
+      mime=rec.mimeType||mime||'audio/webm';blob=new Blob(chunks,{type:mime});pl.src=URL.createObjectURL(blob);pl.hidden=false;
+      btn.classList.remove('on');btn.textContent='● 다시 녹음';};
+    rec.start(1000);t0=Date.now();btn.classList.add('on');btn.textContent='■ 녹음 끝내기';
+    timer=setInterval(function(){var s=(Date.now()-t0)/1000;tm.textContent=fmt(s);if(s>=MAX)rec.stop()},250);
+  }).catch(function(){alert('마이크를 쓸 수 없습니다. 브라우저에서 마이크 권한을 허용하시거나, 아래에서 녹음 파일을 올려 주십시오.');noMic()});
+};
+document.getElementById('file').onchange=function(e){var f=e.target.files[0];if(f){blob=f;mime=f.type||'audio/mp4';pl.src=URL.createObjectURL(f);pl.hidden=false}};
+function val(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:''}
+document.getElementById('send').onclick=function(){
+  var d={dept:document.getElementById('dept').value.trim(),course:document.getElementById('course').value.trim(),
+    count:val('count'),sat:val('sat'),help:val('help'),cont:val('cont'),text:document.getElementById('text').value.trim(),
+    sec:pl.duration&&isFinite(pl.duration)?Math.round(pl.duration):''};
+  if(!d.dept){alert('소속 학과를 적어 주십시오.');return}
+  if(!blob&&!d.text&&!d.sat){alert('녹음이나 답변을 하나 이상 남겨 주십시오.');return}
+  var s=document.getElementById('send'),m=document.getElementById('msg');s.disabled=true;m.textContent='보내는 중입니다…';
+  function ok(){document.getElementById('app').innerHTML='<div class="done"><h2>보내 주셔서 감사합니다</h2><p>소중한 의견은 번역 시스템 운영 개선에 쓰겠습니다.<br>교수학습개발센터</p></div>'}
+  function fail(msg){s.disabled=false;m.textContent='전송에 실패했습니다. 다시 눌러 주십시오. ('+msg+')'}
+  function go(){fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(d)})
+    .then(function(r){return r.json()}).then(function(j){j&&j.ok?ok():fail(j&&j.error||'저장 오류')}).catch(function(e){fail(e.message)})}
+  if(blob){var r=new FileReader();r.onload=function(){d.audio=r.result.split(',')[1];d.mime=mime.split(';')[0];go()};r.readAsDataURL(blob)}else{go()}
+};
+</script></body></html>
