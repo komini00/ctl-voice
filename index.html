@@ -55,10 +55,8 @@
     <li>좋았던 점</li><li>불편했거나 틀리게 번역된 경험</li><li>센터나 학교에 바라는 점</li>
   </ul>
   <div class="rec" id="liveRec"><button type="button" id="recBtn">● 녹음 시작</button><span id="time">0:00</span></div>
-  <div class="rec" id="fileRec" hidden><button type="button" id="pickBtn">🎙️ 녹음하기 / 녹음 파일 올리기</button></div>
-  <input type="file" id="file" accept="audio/*" capture hidden>
   <audio id="player" controls hidden></audio>
-  <div class="alt" id="alt" hidden>휴대폰에서는 버튼을 누르면 녹음 앱이 열립니다. 녹음을 마치면 이 화면으로 돌아와 [보내기]를 눌러 주십시오.<br>아이폰은 「음성 메모」로 녹음한 뒤 파일을 고르시면 됩니다.</div>
+  <div class="alt" id="alt" hidden>이 화면에서는 녹음이 되지 않습니다. 링크를 사파리(아이폰)나 크롬(안드로이드)으로 열어 주십시오. 녹음이 어려우시면 아래 8번에 글로 남겨 주셔도 됩니다.</div>
 </div>
 <div class="card"><label class="q">8. 글로 남기실 말씀 <span class="opt">(선택)</span></label><textarea id="text"></textarea></div>
 
@@ -72,10 +70,9 @@ var rec=null,chunks=[],blob=null,mime='',t0=0,timer=null,MAX=300;
 var btn=document.getElementById('recBtn'),tm=document.getElementById('time'),pl=document.getElementById('player');
 function pick(){var c=['audio/webm;codecs=opus','audio/mp4','audio/ogg;codecs=opus','audio/webm'];for(var i=0;i<c.length;i++){if(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(c[i]))return c[i]}return ''}
 function fmt(s){return Math.floor(s/60)+':'+('0'+Math.floor(s%60)).slice(-2)}
-function noMic(){document.getElementById('liveRec').hidden=true;document.getElementById('fileRec').hidden=false;document.getElementById('alt').hidden=false;}
+function noMic(){document.getElementById('liveRec').hidden=true;document.getElementById('alt').hidden=false;}
 var fp=document.permissionsPolicy||document.featurePolicy;
 if(!navigator.mediaDevices||!window.MediaRecorder||(fp&&fp.allowsFeature&&!fp.allowsFeature('microphone'))){noMic()}
-document.getElementById('pickBtn').onclick=function(){document.getElementById('file').click()};
 btn.onclick=function(){
   if(rec&&rec.state==='recording'){rec.stop();return}
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
@@ -86,9 +83,8 @@ btn.onclick=function(){
       btn.classList.remove('on');btn.textContent='● 다시 녹음';};
     rec.start(1000);t0=Date.now();btn.classList.add('on');btn.textContent='■ 녹음 끝내기';
     timer=setInterval(function(){var s=(Date.now()-t0)/1000;tm.textContent=fmt(s);if(s>=MAX)rec.stop()},250);
-  }).catch(function(){alert('마이크를 쓸 수 없습니다. 브라우저에서 마이크 권한을 허용하시거나, 아래에서 녹음 파일을 올려 주십시오.');noMic()});
+  }).catch(function(){alert('마이크를 쓸 수 없습니다. 브라우저 설정에서 마이크 권한을 허용해 주십시오.');noMic()});
 };
-document.getElementById('file').onchange=function(e){var f=e.target.files[0];if(f){blob=f;mime=f.type||'audio/mp4';pl.src=URL.createObjectURL(f);pl.hidden=false}};
 function val(n){var e=document.querySelector('input[name="'+n+'"]:checked');return e?e.value:''}
 document.getElementById('send').onclick=function(){
   var d={dept:document.getElementById('dept').value.trim(),course:document.getElementById('course').value.trim(),
